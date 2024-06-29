@@ -6,6 +6,7 @@ import { db } from "../firebase";
 
 function Cart() {
   const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -15,16 +16,25 @@ function Cart() {
         result.items.map(async (item) => {
           const url = await getDownloadURL(item);
           const docRef = doc(db, "images", item.name);
+
+          // retrieves the document snapshot for the given document reference
           const docSnap = await getDoc(docRef);
           const status = docSnap.exists() ? docSnap.data().status : "enabled";
           return { url, name: item.name, status };
         })
       );
       setImages(urls);
+      setLoading(false);
     };
 
     fetchImages();
   }, []);
+
+  if (loading) {
+    return (
+      <h4 style={{ color: "lightcoral" }}>Loading... Patience, Please!</h4>
+    );
+  }
 
   const updateImageStatus = async (name, status) => {
     await setDoc(doc(db, "images", name), { status });

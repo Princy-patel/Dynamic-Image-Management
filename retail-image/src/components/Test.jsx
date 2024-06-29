@@ -5,15 +5,23 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 
 function Test() {
   const [imagesUrl, setImagesUrl] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEnabledImages = async () => {
+      // in collection, first agr - database object, second arg - collection we want to reference to
       const q = query(
         collection(db, "images"),
         where("status", "==", "enabled")
       );
+
+      // try to retrieve all the document from the collection that matches with query
       const querySnapshot = await getDocs(q);
-      const enabledImageNames = querySnapshot.docs.map((doc) => doc.id);
+
+      // docs represent the all the document and get the id
+      const enabledImageNames = querySnapshot.docs.map((doc) => {
+        return doc.id;
+      });
       const storeRef = ref(storage, "gs://fir-explorer-9c40f.appspot.com");
       const result = await listAll(storeRef);
       const urls = await Promise.all(
@@ -22,10 +30,17 @@ function Test() {
           .map((item) => getDownloadURL(item))
       );
       setImagesUrl(urls);
+      setLoading(false);
     };
 
     fetchEnabledImages();
   }, []);
+
+  if (loading) {
+    return (
+      <h4 style={{ color: "lightcoral" }}>Loading... Patience, Please!</h4>
+    );
+  }
 
   return (
     <div>
@@ -43,4 +58,3 @@ function Test() {
 }
 
 export default Test;
-
