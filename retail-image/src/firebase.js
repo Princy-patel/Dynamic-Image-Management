@@ -13,7 +13,11 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// init service
 const db = getFirestore(app);
+
+// 
 const storage = getStorage(app);
 
 export { db, storage };
